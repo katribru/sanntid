@@ -1,0 +1,18 @@
+package driver
+
+
+func Set_door_open_lamp(value bool){
+	if value{
+		io_set_bit(LIGHT_DOOR_OPEN)
+	} else{
+		io_clear_bit(LIGHT_DOOR_OPEN)
+	}
+}
+
+func Set_stop_lamp(value bool){
+	if value{
+		io_set_bit(LIGHT_STOP)
+	} else{
+		io_clear_bit(LIGHT_STOP)
+	}
+}
