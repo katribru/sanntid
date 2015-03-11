@@ -2,57 +2,45 @@ package manager
 
 import (
 "../driver"
-"fmt"
+//"fmt"
 )
 
-var Button_signal_down = make(chan int)
-var Button_signal_up = make(chan int)
-var Button_signal_inside = make(chan int)
-var Floor_reached = make(chan int)
-var Dir driver.Motor_direction
+type State int
+const( 
+	IDLE State = iota
+	RUNNING
+	DOOR_OPEN
+	)
 
-var My_orders = [driver.N_FLOORS][driver.N_BUTTONS]int{
-    [driver.N_BUTTONS]int{0, 0, 0},
-    [driver.N_BUTTONS]int{0, 0, 0},
-    [driver.N_BUTTONS]int{0, 0, 0},
-    [driver.N_BUTTONS]int{0, 0, 0}}
+var dir driver.Motor_direction
+var previous_floor int
+var current_floor int
+var current_state State
+var elevators_in_system int
 
-func Poll(){
-	count:= 0
-	for{
-		for i := 0; i < driver.N_FLOORS; i++{
-			if (i != 0 && driver.Get_button_signal(driver.BUTTON_CALL_DOWN, i) != 0){
-				My_orders[i][driver.BUTTON_CALL_DOWN] = 1
-				fmt.Printf("%v", My_orders)
-				Button_signal_down <- i
+
+
+
+func Calculate_cost(elevator int) int{
+
+}
+
+func Redistribute_orders(){
+	for i := 0; i < driver.N_FLOORS; i++{
+		for j := 0; j < driver.N_BUTTONS; j++{
+			if All_orders[i][j] == 1{
+				var best_elevator int
+				cost := 1000
+				for k := 0, k < elevators_in_system; k++{
+					if Calculate_cost(k) < cost{
+						best_elevator := k
+					}
+				}
 			}
-
-			if(i != driver.N_FLOORS - 1 && driver.Get_button_signal(driver.BUTTON_CALL_UP, i) != 0){
-				My_orders[i][driver.BUTTON_CALL_UP] = 1
-				fmt.Printf("%v", My_orders)
-				Button_signal_up <- i
-				
-			}
-			if(driver.Get_button_signal(driver.BUTTON_COMMAND, i) != 0){
-				My_orders[i][driver.BUTTON_COMMAND] = 1
-				fmt.Printf("%v", My_orders)
-				Button_signal_inside <- i
-				
-			}
-
-		}
-		floor := driver.Get_floor_sensor_signal()
-		if (floor != -1 && count == 0){
-			count = count + 1
-			Floor_reached <- floor
-		} else if(floor == -1){
-			count = 0
-		} else{
-			count = count + 1
-		}
+	}
 	}
 }
 
-func Cost(){
-	
+func Process_orders(){
+
 }
