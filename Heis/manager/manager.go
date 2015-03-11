@@ -9,6 +9,7 @@ var Button_signal_down = make(chan int)
 var Button_signal_up = make(chan int)
 var Button_signal_inside = make(chan int)
 var Floor_reached = make(chan int)
+var Dir driver.Motor_direction
 
 var My_orders = [driver.N_FLOORS][driver.N_BUTTONS]int{
     [driver.N_BUTTONS]int{0, 0, 0},
