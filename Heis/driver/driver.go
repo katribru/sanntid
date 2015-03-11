@@ -6,6 +6,7 @@ import (
 
 const N_BUTTONS = 3
 const N_FLOORS = 4
+const N_ELEVATORS = 3
 
 type Button_type int
 const( 
@@ -154,5 +155,58 @@ func Init() int {
     	Set_floor_indicator(0);
 	//Return success
 	return 1
+}
+
+// type Order struct {
+//     floor int
+//     button Button_type
+// }
+
+var Button_signal_down = make(chan int)
+var Button_signal_up = make(chan int)
+var Button_signal_inside = make(chan int)
+var Floor_reached = make(chan int)
+var New_order = make(chan )
+
+
+
+func Poll(){
+	count := 0
+	count1 := 0
+	count2 := 0
+	count3 := 0
+	for{
+		for i := 0; i < N_FLOORS; i++{
+			if (i != 0 && Get_button_signal(BUTTON_CALL_DOWN, i) != 0 && count == 0){
+				count = count + 1
+				Button_signal_down <- i
+			} else if (i != 0 && Get_button_signal(BUTTON_CALL_DOWN, i) == 0){
+				count = 0
+			}
+
+			if(i != N_FLOORS - 1 && Get_button_signal(BUTTON_CALL_UP, i) != 0 && count1 == 0){
+				count1 = count1 + 1
+				Button_signal_up <- i	
+			} else if (i != N_FLOORS - 1 && Get_button_signal(BUTTON_CALL_UP, i) == 0){
+				count1 = 0
+			}
+			if(Get_button_signal(BUTTON_COMMAND, i) != 0 && count2 == 0){
+				count2 = count2 + 1
+				Button_signal_inside <- i
+			} else if (Get_button_signal(BUTTON_COMMAND, i) == 0){
+				count2 = 0
+			}
+		}
+
+		floor := Get_floor_sensor_signal()
+		if (floor != -1 && count3 == 0){
+			count3 = count3 + 1
+			Floor_reached <- floor
+		} else if(floor == -1){
+			count3 = 0
+		} else{
+			count3 = count3 + 1
+		}
+	}
 }
 

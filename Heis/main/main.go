@@ -9,11 +9,11 @@ import (
 
 func main(){
 	driver.Init()
-	fmt.Println("Main kjoerer")
+	fmt.Println("Main running...")
 
 	i := driver.Get_floor_sensor_signal()
 	//driver.Set_floor_indicator(i)
-	fmt.Println("ETG =", i)
+	fmt.Println("Floor =", i)
 //	for{
 //		j := driver.Get_floor_sensor_signal()
 //		fmt.Println("ETG =", j)
@@ -48,39 +48,51 @@ func main(){
 //		}
 //		time.Sleep(1000*time.Millisecond)
 //	}
+
 	time.Sleep(1000*time.Millisecond)
-	go manager.Poll()
-	var dir driver.Motor_direction
+	go driver.Poll()
+	//go Process_orders something
+
+
 	for{
 		select{
-		case down := <- manager.Button_signal_down:
-			dir = driver.DIRN_DOWN
-			driver.Set_motor_direction(driver.DIRN_DOWN)
-			driver.Set_button_lamp(driver.BUTTON_CALL_DOWN, down, 1)
+		case new_order := <- driver.New_order:
+			fmt.Printf("%v", new_order)
+		// case order_down := <- driver.Button_signal_down:
+		// 	manager.My_orders[i][driver.BUTTON_CALL_DOWN] = 1
+		// 	fmt.Printf("%v", manager.My_orders)
 
-		case up := <- manager.Button_signal_up:
-			//fmt.Println("Elevator order up at floor ", up)
-			dir = driver.DIRN_UP
-			driver.Set_button_lamp(driver.BUTTON_CALL_UP, up, 1)
-			driver.Set_motor_direction(driver.DIRN_UP)
+		// 	dir = driver.DIRN_DOWN
+		// 	driver.Set_motor_direction(driver.DIRN_DOWN)
+		// 	driver.Set_button_lamp(driver.BUTTON_CALL_DOWN, order_down, 1)
 
-		case inside := <- manager.Button_signal_inside:
-			//fmt.Println("Elevator order inside, floor ", inside)
-			driver.Set_button_lamp(driver.BUTTON_COMMAND, inside, 1)
+		// case order_up := <- driver.Button_signal_up:
+		// 	//fmt.Println("Elevator order up at floor ", up)
+		// 	manager.My_orders[i][driver.BUTTON_CALL_UP] = 1
+		// 	fmt.Printf("%v", manager.My_orders)
+		// 	dir = driver.DIRN_UP
+		// 	driver.Set_button_lamp(driver.BUTTON_CALL_UP, order_up, 1)
+		// 	driver.Set_motor_direction(driver.DIRN_UP)
 
-		case floor := <- manager.Floor_reached:
-			fmt.Println("Reached floor ", floor)
-			driver.Set_floor_indicator(floor)
+		// case order_inside := <- driver.Button_signal_inside:
+		// 	//fmt.Println("Elevator order inside, floor ", inside)
+		// 	manager.My_orders[i][driver.BUTTON_COMMAND] = 1
+		// 	fmt.Printf("%v", manager.My_orders)
+		// 	driver.Set_button_lamp(driver.BUTTON_COMMAND, order_inside, 1)
+
+		case floor_reached := <- driver.Floor_reached:
+			fmt.Println("Reached floor ", floor_reached)
+			driver.Set_floor_indicator(floor_reached)
 			driver.Set_motor_direction(driver.DIRN_STOP)
 			manager.My_orders[floor][driver.BUTTON_COMMAND] = 0
-			driver.Set_button_lamp(driver.BUTTON_COMMAND, floor, 0)
+			driver.Set_button_lamp(driver.BUTTON_COMMAND, floor_reached, 0)
 			
 			if (dir == driver.DIRN_DOWN){
-				manager.My_orders[floor][driver.BUTTON_CALL_DOWN] = 0
-				driver.Set_button_lamp(driver.BUTTON_CALL_DOWN, floor, 0)
+				manager.My_orders[floor_reached][driver.BUTTON_CALL_DOWN] = 0
+				driver.Set_button_lamp(driver.BUTTON_CALL_DOWN, floor_reached, 0)
 			} else{
-				manager.My_orders[floor][driver.BUTTON_CALL_UP] = 0
-				driver.Set_button_lamp(driver.BUTTON_CALL_UP, floor, 0)
+				manager.My_orders[floor_reached][driver.BUTTON_CALL_UP] = 0
+				driver.Set_button_lamp(driver.BUTTON_CALL_UP, floor_reached, 0)
 			}
 	
 		}

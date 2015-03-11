@@ -2,7 +2,7 @@ package manager
 
 import (
 "../driver"
-//"fmt"
+"fmt"
 )
 
 var Button_signal_down = make(chan int)
@@ -22,16 +22,19 @@ func Poll(){
 		for i := 0; i < driver.N_FLOORS; i++{
 			if (i != 0 && driver.Get_button_signal(driver.BUTTON_CALL_DOWN, i) != 0){
 				My_orders[i][driver.BUTTON_CALL_DOWN] = 1
+				fmt.Printf("%v", My_orders)
 				Button_signal_down <- i
 			}
 
 			if(i != driver.N_FLOORS - 1 && driver.Get_button_signal(driver.BUTTON_CALL_UP, i) != 0){
 				My_orders[i][driver.BUTTON_CALL_UP] = 1
+				fmt.Printf("%v", My_orders)
 				Button_signal_up <- i
 				
 			}
 			if(driver.Get_button_signal(driver.BUTTON_COMMAND, i) != 0){
 				My_orders[i][driver.BUTTON_COMMAND] = 1
+				fmt.Printf("%v", My_orders)
 				Button_signal_inside <- i
 				
 			}
