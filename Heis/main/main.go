@@ -53,6 +53,8 @@ func main(){
 	go driver.Poll()
 	go network.spam_ImAlive()
 	go network.receive_msg()
+
+	var N_elevators_in_system int 
 	
 
 
@@ -98,6 +100,7 @@ func main(){
 			}
 
 		case msg := <-incoming_message:
+			elevators_in_system[ip] = time.Now()
 			if msg.Message_type == "ping"{
 				//manager.update_elevators_in_system(msg.Sender_IP)
 			}else if msg.Message_type == "order_update"{

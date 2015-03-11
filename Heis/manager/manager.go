@@ -2,7 +2,9 @@ package manager
 
 import (
 "../driver"
+"time"
 //"fmt"
+
 )
 
 type State int
@@ -11,12 +13,12 @@ const(
 	RUNNING
 	DOOR_OPEN
 	)
-
+const N_ELEVATORS = 3
 var dir driver.Motor_direction
 var previous_floor int
 var current_floor int
 var current_state State
-var elevators_in_system int
+var elevators_in_system [N_ELEVATORS]string 
 
 
 
@@ -41,6 +43,3 @@ func Redistribute_orders(){
 	}
 }
 
-func Process_orders(){
-
-}
