@@ -4,27 +4,56 @@ import (
 "fmt"
 "net"
 "time"
+"os" //used in get_local_IPaddr()
+"encoding/json"
 "strings"
+//"strings"
 )
 
-func broadcast_msg(){
-	UDPAdr, err1 := net.ResolveUDPAddr("udp", "127.0.0.1:92929") //Gir hvilken port vi skal broadcaste fra. 
+//Solveig IP: 129.241.187.141
+
+func broadcast_msg(data string){
+	UDPAdr, err1 := net.ResolveUDPAddr("udp", "127.0.0.1:55001") //Gir hvilken port vi skal broadcaste fra. 
 	if err1 != nil{
 		fmt.Println(err1)
 	}
-
-	connUDP, err := net.DialUDP("udp", nil, UDPAdr)
+	UDPconn, err := net.DialUDP("udp", nil, UDPAdr)
 	if err != nil{
 		fmt.Println(err)
 	}
-	for i := 0; i < 10; i++ {
-		n, err1 := SrvUDP.Write([]byte("Broadcast message!\n\x00"))
-		if err1 != nil{
-			fmt.Println("Error",err1,n)
-		}
-		time.Sleep(100*time.Millisecond)	
+	
+	
+	//Egen funksjon pack_msg(data)? ---------------
+	type Message struct {
+		Sender_IP        string
+		//Message_type   string
+		Data             string //Annen type/container - eks bytes pakken?
 	}
 	
+	//ip = get_local_IPadr()
+	msg := Message{
+		Sender_IP: get_local_IPadr(),
+		Data: data,
+	}
+	//--------------------------------------------
+	//msg := pack_msg(data)
+	
+
+	b, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	UDPconn.Write(b)
+	
+}
+	
+func test_broadcaster(){
+	for i := 0; i < 10; i++ {
+		msg := []string{"Broadcast msg"}
+		broadcast_msg(strings.Join(msg, " "))
+		time.Sleep(100*time.Millisecond)	
+	}
+
 }
 
 
@@ -32,7 +61,7 @@ func broadcast_msg(){
 func receive_msg(){
 	buffer := make([]byte,1024)
 	
-	UDPAdr, err1 := net.ResolveUDPAddr("udp", ":92929")
+	UDPAdr, err1 := net.ResolveUDPAddr("udp", ":55001")
 	if err1 != nil{
 		fmt.Println(err1)
 	}
@@ -47,19 +76,46 @@ func receive_msg(){
 		if err3 != nil{
 			fmt.Println(err3)
 		}
-			if !strings.Contains(Addr, ".150"){
-				fmt.Printf("Rcv %d bytes: %s",n,buffer[0:n])
-				}
+		//if !strings.Contains(Addr, ".150"){
+		//	fmt.Printf("Rcv %d bytes: %s",n,buffer[0:n])
+		//}
+		fmt.Println(Addr,n)
+		fmt.Printf("Rcv message, %d bytes: %s",n,buffer[0:n])
 	}
 }
+
+
+
+
+func get_local_IPadr()string{
+	addrs, err := net.InterfaceAddrs()
+ 	if err != nil {
+		 fmt.Println(err)
+		 os.Exit(1)
+	}
+	for _, address := range addrs {
+
+	// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return "Could not get local IP" //Noe bedre å returnere her???
+}
+
+
+
+//Ha IPadr i en string. Brukes til identifikasjon. Eks: if !strings.Contains(Addr, ".150"){
 	
 	
 
 func main(){
-	go read()
+	go receive_msg()
 	time.Sleep(3000*time.Millisecond)	
-	go write()
-	time.Sleep(15000*time.Millisecond)
+	go test_broadcaster()
+	time.Sleep(10000*time.Millisecond)
 	fmt.Println("Done!")
 	
 }
