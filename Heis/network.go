@@ -11,9 +11,35 @@ import (
 )
 
 //Solveig IP: 129.241.187.141
+const N_Elevators = 3
+var active_elevators_in_system[N_Elevators]string
 
-func broadcast_msg(data string){
-	UDPAdr, err1 := net.ResolveUDPAddr("udp", "127.0.0.1:55001") //Gir hvilken port vi skal broadcaste fra. 
+
+
+type Message struct {
+		Sender_IP        string
+		Message_type     string //ping, order_table, state_update
+		Data             string //Annen type/container - eks bytes pakken?
+	}
+	
+func spam_ImAlive(){ //Kjøres som en go routine fra main
+	for{
+		broadcast_msg("ping", "ImAlive")
+		time.Sleep(100*time.Millisecond)
+	}		
+}
+
+func watch_elevators_in_system(){ //Kjøres når man mottar en ping. Legg denne funksjonalitet til Manager. 
+	//Trenger å vite hvilke heiser som er i systemet
+	var 
+	for{
+		
+	}
+}
+
+
+func broadcast_msg(msg_type string, data string){
+	UDPAdr, err1 := net.ResolveUDPAddr("udp", "129.241.187.255:40101") //Gir hvilken port vi skal broadcaste fra/til? 
 	if err1 != nil{
 		fmt.Println(err1)
 	}
@@ -24,21 +50,12 @@ func broadcast_msg(data string){
 	
 	
 	//Egen funksjon pack_msg(data)? ---------------
-	type Message struct {
-		Sender_IP        string
-		//Message_type   string
-		Data             string //Annen type/container - eks bytes pakken?
-	}
-	
-	//ip = get_local_IPadr()
 	msg := Message{
 		Sender_IP: get_local_IPadr(),
 		Data: data,
 	}
 	//--------------------------------------------
-	//msg := pack_msg(data)
-	
-
+	//msg := pack_msg(data)	
 	b, err := json.Marshal(msg)
 	if err != nil {
 		fmt.Println("error:", err)
@@ -50,18 +67,15 @@ func broadcast_msg(data string){
 func test_broadcaster(){
 	for i := 0; i < 10; i++ {
 		msg := []string{"Broadcast msg"}
-		broadcast_msg(strings.Join(msg, " "))
+		broadcast_msg("ping", strings.Join(msg, " "))
 		time.Sleep(100*time.Millisecond)	
 	}
-
 }
 
 
-
-func receive_msg(){
+func receive_msg(){//Kjøres som en go routine fra main? 
 	buffer := make([]byte,1024)
-	
-	UDPAdr, err1 := net.ResolveUDPAddr("udp", ":55001")
+	UDPAdr, err1 := net.ResolveUDPAddr("udp", ":40101")
 	if err1 != nil{
 		fmt.Println(err1)
 	}
@@ -69,18 +83,25 @@ func receive_msg(){
 	UDPConn, err2 := net.ListenUDP("udp", UDPAdr)
 	if err2 != nil{
 		fmt.Println(err2)
-	}
-
-	for true{
+	}	
+	for {
 		n, Addr, err3 := UDPConn.ReadFromUDP(buffer)
 		if err3 != nil{
 			fmt.Println(err3)
 		}
-		//if !strings.Contains(Addr, ".150"){
-		//	fmt.Printf("Rcv %d bytes: %s",n,buffer[0:n])
-		//}
+		var msg Message
+		err4 := json.Unmarshal(buffer[0:n], &msg)
+		if err4 != nil{
+			fmt.Println(err4)
+		}
+		
+		if msg.Sender_IP != get_local_IPadr(){
+			fmt.Println(msg.Sender_IP)
+			//Pass whole struct msg to Manager. Manager wil do different things depending on msg type
+			//Manager.handle_incomming_message(msg)
+		}
 		fmt.Println(Addr,n)
-		fmt.Printf("Rcv message, %d bytes: %s",n,buffer[0:n])
+		//fmt.Printf("Rcv message, %d bytes: %s",n,buffer[0:n])
 	}
 }
 
@@ -95,7 +116,7 @@ func get_local_IPadr()string{
 	}
 	for _, address := range addrs {
 
-	// check the address type and if it is not a loopback the display it
+	// check the address type and if it is not a loopback then display it
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP.To4() != nil {
 				return ipnet.IP.String()
@@ -115,7 +136,7 @@ func main(){
 	go receive_msg()
 	time.Sleep(3000*time.Millisecond)	
 	go test_broadcaster()
-	time.Sleep(10000*time.Millisecond)
+	time.Sleep(15000*time.Millisecond)
 	fmt.Println("Done!")
 	
 }
