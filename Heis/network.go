@@ -9,6 +9,28 @@ import (
 "strings"
 )
 
+//Elevators_in_system := make(map[string]int) ADD TO MANAGER evt ordremodulen
+
+func check_connected_elevators()//Kjør fra main. Ligge i manager el kømodul da det er i kømodulen man trenger å vite hvilke heiser som er i systemet
+	//Legg en set_timestamp() funksjon i kømodul som kan kjøres fra main case ny msg
+	//Bruke len(elevators_in_system) som variabel på antall heiser som er conectet
+	//n := len(m) //returns the number of items in a map
+	for{
+		time_now = time.Now() //Sjekk om det stemmer med formatet til time.Now()
+
+		for elevator_ip, timestamp := range elevators_in_system {
+			if (timestamp + 10) < time_now{
+				elevator_disconected(elevator_ip)//Oppdatere map? Noe mer?
+			}
+		}	
+	}
+}
+
+
+type Elevator struct{
+	IP                string
+	time_last_contact int 
+}
 
 type Message struct {
 		Sender_IP        string
@@ -18,14 +40,14 @@ type Message struct {
 
 var incoming_message = make(chan Message)
 	
-func spam_ImAlive(){ //Kjøres som en go routine fra main
+func Spam_ImAlive(){ //Kjøres som en go routine fra main
 	for{
-		broadcast_msg("ping", "ImAlive")
+		Broadcast_msg("ping", "ImAlive")
 		time.Sleep(300*time.Millisecond)
 	}		
 }
 
-func broadcast_msg(msg_type string, msg_content string){
+func Broadcast_msg(msg_type string, msg_content string){
 	UDPAdr, err1 := net.ResolveUDPAddr("udp", "129.241.187.255:40101") 
 	if err1 != nil{
 		fmt.Println(err1)
@@ -52,13 +74,13 @@ func broadcast_msg(msg_type string, msg_content string){
 func test_broadcaster(){¨//Tas vekk når vi er ferdig med å teste modulen
 	for i := 0; i < 10; i++ {
 		msg := []string{"Broadcast msg"}
-		broadcast_msg("ping", strings.Join(msg, " "))
+		Broadcast_msg("ping", strings.Join(msg, " "))
 		time.Sleep(100*time.Millisecond)	
 	}
 }
 
 
-func receive_msg(){//Kjøres som en goroutine fra main 
+func Receive_msg(){//Kjøres som en goroutine fra main 
 	buffer := make([]byte,1024)
 	UDPAdr, err1 := net.ResolveUDPAddr("udp", ":40101")
 	if err1 != nil{
@@ -83,6 +105,7 @@ func receive_msg(){//Kjøres som en goroutine fra main
 		if msg.Sender_IP != get_local_IPadr(){
 			fmt.Println(msg.Sender_IP)
 			incoming_message <- msg //Sender hele structen
+			//set_timestamp()
 		
 		}
 		fmt.Println(Addr,n)
@@ -110,10 +133,10 @@ func get_local_IPadr()string{
 	
 
 func main(){
-	go receive_msg()
+	go Receive_msg()
 	time.Sleep(3000*time.Millisecond)	
 	go test_broadcaster()
-	go spam_ImAlive()
+	go Spam_ImAlive()
 	time.Sleep(15000*time.Millisecond)
 	fmt.Println("Done!")
 }
