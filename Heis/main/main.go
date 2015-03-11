@@ -51,7 +51,9 @@ func main(){
 
 	time.Sleep(1000*time.Millisecond)
 	go driver.Poll()
-	//go Process_orders something
+	go network.spam_ImAlive()
+	go network.receive_msg()
+	
 
 
 	for{
@@ -93,6 +95,17 @@ func main(){
 			} else{
 				manager.My_orders[floor_reached][driver.BUTTON_CALL_UP] = 0
 				driver.Set_button_lamp(driver.BUTTON_CALL_UP, floor_reached, 0)
+			}
+
+		case msg := <-incoming_message:
+			if msg.Message_type == "ping"{
+				//manager.update_elevators_in_system(msg.Sender_IP)
+			}else if msg.Message_type == "order_update"{
+				//mager.update_orders(msg.Data)
+			}else if msg.Message_type == "state_update"{
+				//maager.update_all_states(msg.Data)
+			}else {
+				fmt.Println("Error: Invalid msg type")
 			}
 	
 		}
