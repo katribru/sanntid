@@ -16,7 +16,7 @@ import (
 
 
 
-
+/*
 //Flytt til manager!!
 
 type Elevator struct{
@@ -24,40 +24,40 @@ type Elevator struct{
 	time_last_contact int 
 }
 
-elevators_in_system = make(map[string]int)
+elevators_in_system := make(map[string]int)
 
-func check_connected_elevators()//Kjør fra main. Ligge i manager el kømodul da det er i kømodulen man trenger å vite hvilke heiser som er i systemet
-	//Legg en set_timestamp() funksjon i kømodul som kan kjøres fra main case ny msg
-	//Bruke len(elevators_in_system) som variabel på antall heiser som er conectet
-	//n := len(m) //returns the number of items in a map
+func check_connected_elevators()//Kjør fra main. 
 	for{
-		time_now = time.Now() //Sjekk om det stemmer med formatet til time.Now()
+		time_now := time.Now().Format("20060102150405") //Format YYYYMMDDhhmmss
 
 		for elevator_ip, timestamp := range elevators_in_system {
-			if (timestamp + 10) < time_now{
-				elevator_disconected(elevator_ip)//Funsksjon i elevator. Den skal oppdatere map? Noe mer?
+			if (timestamp + 5) < time_now{ //Kan ikke vente mer enn 5 sekunder
+				delete(elevators_in_system, elevator_ip) // delete_elevator_from_system(elevator_ip)//Funsksjon i elevator. Den skal oppdatere map? Noe mer?
 
 			}
-		}	
+		}
 	}
 }
 
-func update_elevators_in_system(string elevator_IP){
-	// if elevator_IP not in map{
-	//	add_elevator_to_system(elevator_IP)
-	//}
-	//Gå gjennom liste med 
-
-	//Elevators in system - map med IP som key og siste timestamp som entry
-
-
+func set_timestamp(string elevator_IP){ //Kjøres i case ny msg
+	if val, ok := elevators_in_system[elevator_IP] {
+		add_elevator_to_system(elevator_IP)
+	}
+	else {
+		elevators_in_system[elevator_IP] = time.Now().Format("20060102150405")
+	}
 }
 
-func add_elevator_to_system(string elevator_IP)
-	//Broadcast oppdatert tabell slik at den nye blir oppdatert
+func add_elevator_to_system(string elevator_IP){}
+	elevators_in_system[elevator_IP] = time.Now().Format("20060102150405")
+	//Broadcast oppdatert tabell slik at den nye blir oppdatert??
 }
 
+func delete_elevator_from_system(elevator_ip){
+	delete(elevators_in_system, elevator_ip)
+}
 
+*/
 
 type Message struct {
 		Sender_IP        string
@@ -160,6 +160,25 @@ func get_local_IPadr()string{
 	
 
 func main(){
+	elevators_in_system := make(map[string]int) //String keys to int values
+	elevators_in_system["123.123"] = 1
+	elevators_in_system["123.124"] = 12
+	elevators_in_system["123.125"] = 3
+	//keys := []string{"123.123","123.124","123.125"}
+	for ip, timestamp := range elevators_in_system {
+	    fmt.Println("Key:", ip, "Value:", timestamp)
+	}
+	elevator_IP := "123.125"
+	elevators_in_system[elevator_IP] = 44
+	for ip, timestamp := range elevators_in_system {
+	    fmt.Println("Key:", ip, "Value:", timestamp)
+	}
+	if _, ok := elevators_in_system[elevator_IP]; !ok { //Dersom key not in map
+		fmt.Println("Key not in map: ", elevator_IP)
+	} 
+
+
+	
 	go Receive_msg()
 	time.Sleep(3000*time.Millisecond)	
 	go test_broadcaster()
