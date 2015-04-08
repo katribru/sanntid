@@ -11,6 +11,21 @@ import (
 
 //Elevators_in_system := make(map[string]int) ADD TO MANAGER evt ordremodulen
 
+
+
+
+
+
+
+//Flytt til manager!!
+
+type Elevator struct{
+	IP                string
+	time_last_contact int 
+}
+
+elevators_in_system = make(map[string]int)
+
 func check_connected_elevators()//Kjør fra main. Ligge i manager el kømodul da det er i kømodulen man trenger å vite hvilke heiser som er i systemet
 	//Legg en set_timestamp() funksjon i kømodul som kan kjøres fra main case ny msg
 	//Bruke len(elevators_in_system) som variabel på antall heiser som er conectet
@@ -20,17 +35,29 @@ func check_connected_elevators()//Kjør fra main. Ligge i manager el kømodul da
 
 		for elevator_ip, timestamp := range elevators_in_system {
 			if (timestamp + 10) < time_now{
-				elevator_disconected(elevator_ip)//Oppdatere map? Noe mer?
+				elevator_disconected(elevator_ip)//Funsksjon i elevator. Den skal oppdatere map? Noe mer?
+
 			}
 		}	
 	}
 }
 
+func update_elevators_in_system(string elevator_IP){
+	// if elevator_IP not in map{
+	//	add_elevator_to_system(elevator_IP)
+	//}
+	//Gå gjennom liste med 
 
-type Elevator struct{
-	IP                string
-	time_last_contact int 
+	//Elevators in system - map med IP som key og siste timestamp som entry
+
+
 }
+
+func add_elevator_to_system(string elevator_IP)
+	//Broadcast oppdatert tabell slik at den nye blir oppdatert
+}
+
+
 
 type Message struct {
 		Sender_IP        string
