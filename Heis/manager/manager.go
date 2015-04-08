@@ -23,6 +23,7 @@ var elevators_in_system [N_ELEVATORS]string
 
 
 
+
 func Calculate_cost(elevator int) int{
 
 }

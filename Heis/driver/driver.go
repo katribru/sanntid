@@ -6,7 +6,7 @@ import (
 
 const N_BUTTONS = 3
 const N_FLOORS = 4
-const N_ELEVATORS = 3
+
 
 type Button_type int
 const( 

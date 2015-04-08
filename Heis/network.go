@@ -71,7 +71,7 @@ func Broadcast_msg(msg_type string, msg_content string){
 	
 }
 	
-func test_broadcaster(){¨//Tas vekk når vi er ferdig med å teste modulen
+func test_broadcaster(){//Tas vekk når vi er ferdig med å teste modulen
 	for i := 0; i < 10; i++ {
 		msg := []string{"Broadcast msg"}
 		Broadcast_msg("ping", strings.Join(msg, " "))
