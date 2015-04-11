@@ -5,19 +5,65 @@ import (
 //"../manager"
 //"time"
 "fmt"
+"encoding/json"
 )
 
+
 func main(){
-	//orders := make(map[string]map[string]int)
 
-/*	type order_at_flors struct{
-		1 int
-		2 int
-		3 int
-		4 int
+	distributed_orders := map[string]map[string]map[string]int{
+		"local_IP": map[string]map[string]int{
+			"UP": map[string]int{
+				"1": 0,
+				"2": 0,
+				"3": 0,
+				"4": 0,
+			},
+			"DOWN": map[string]int{
+				"1": 0,
+				"2": 0,
+				"3": 0,
+				"4": 0,
+			},
+			"INTERNAL": map[string]int{
+				"1": 0,
+				"2": 0,
+				"3": 0,
+				"4": 0,
+			},
+		},
 	}
-*/
+	fmt.Println(distributed_orders)
 
+	b, err1 := json.Marshal(distributed_orders)
+	if err1 != nil{
+			fmt.Println(err1)
+		}
+	fmt.Println(b)
+
+	
+	content := make(map[string]map[string]map[string]int) 
+
+	err4 := json.Unmarshal(b, &content)
+		if err4 != nil{
+			fmt.Println(err4)
+		}
+
+	fmt.Println("content: ", content)
+	
+	type Message struct {
+		Sender_IP        string
+		Message_type     string //ping, internal_orders, shared_orders, elev_state, 
+								//ack_shared_orders_recieved, request_all_info, all_info, 
+								//Slå sammen internal_orders og elev_state? -> JA, de vil alltid sendes sammen uansett 
+		Message_content  []byte //Annen type/container - eks bytes pakken?
+	}
+
+	msg := Message{"123.123", "order", b}
+
+	fmt.Println("struct msg: ", msg)
+
+/*
 
 	distributed_orders := map[string]map[string]map[int]int{
 		"local_IP": map[string]map[int]int{
@@ -50,7 +96,7 @@ func main(){
 			}
 		}	
 	}
-	
+
 
 	shared_orders := map[string]map[int]int{
 		"UP": map[int]int{
